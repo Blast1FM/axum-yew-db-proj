@@ -2,7 +2,7 @@ mod db;
 mod handlers;
 mod routes;
 
-use axum::{response::IntoResponse, routing::get, Router};
+use axum::Router;
 use clap::Parser;
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::str::FromStr;
@@ -22,9 +22,10 @@ struct Opt {
 
 #[tokio::main]
 async fn main() {
+
     let opt = Opt::parse();
 
-    let app = Router::new().route("/", get(hello)).route("/hi", get(hello_2));
+    let app: Router = routes::create_routes();
 
     let sock_addr = SocketAddr::from((
         IpAddr::from_str(opt.addr.as_str()).unwrap_or(IpAddr::V6(Ipv6Addr::LOCALHOST)),
@@ -37,12 +38,4 @@ async fn main() {
 
     axum::serve(listener,app).await.expect("Unable to start server");
 
-}
-
-async fn hello() -> impl IntoResponse {
-    "hello from server!"
-}
-
-async fn hello_2() -> impl IntoResponse{
-    "HELLO 2"
 }
