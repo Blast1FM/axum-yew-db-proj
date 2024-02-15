@@ -17,7 +17,7 @@ struct Opt {
     addr: String,
 
     /// set the listen port
-    #[clap(short = 'p', long = "port", default_value = "8080")]
+    #[clap(short = 'p', long = "port", default_value = "8081")]
     port: u16,
 }
 
