@@ -1,6 +1,7 @@
 mod db;
 mod handlers;
 mod routes;
+mod structs;
 
 use axum::Router;
 use clap::Parser;
