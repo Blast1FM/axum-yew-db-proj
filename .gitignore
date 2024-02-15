@@ -1,2 +1,4 @@
 target/
 dist/
+db/db-data
+db/pgadmin-data
