@@ -7,6 +7,7 @@ use axum::Router;
 use clap::Parser;
 use std::net::{IpAddr, Ipv6Addr, SocketAddr};
 use std::str::FromStr;
+use sqlx::postgres::PgPoolOptions;
 
 // Setup the command line interface with clap.
 #[derive(Parser, Debug)]
@@ -22,11 +23,15 @@ struct Opt {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), sqlx::Error> {
 
     let opt = Opt::parse();
 
-    let app: Router = routes::create_routes();
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect("postgres://postgres:postgres@localhost/postgres").await?;
+
+    let app: Router = routes::create_routes(pool);
 
     let sock_addr = SocketAddr::from((
         IpAddr::from_str(opt.addr.as_str()).unwrap_or(IpAddr::V6(Ipv6Addr::LOCALHOST)),
@@ -38,5 +43,7 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&sock_addr).await.expect("Unable to bind to socket");
 
     axum::serve(listener,app).await.expect("Unable to start server");
+
+    Ok(())
 
 }
