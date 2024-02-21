@@ -15,9 +15,9 @@ pub async fn tenant_test(Json(body):Json<structs::Tenant>) -> impl IntoResponse{
     format!("Tenant's name is {}", body.first_name())
 }
 
-pub async fn query_book_name(Extension(db) : &Extension<PgPool>, book_name: String) -> impl IntoResponse{
-    let q = "SELECT * from Books";
+pub async fn query_book_name(Extension(db) : &Extension<PgPool>, book_name: String){
+    let q = "SELECT * from mini1.\"Books\"";
     //TODO figure this shit out, it bork
+    let query = sqlx::query_as::<_, structs::Book>(q);
     //let query = sqlx::query_as::<_, structs::Book>(q);
-    
 }

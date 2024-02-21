@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use derive_getters::Getters;
-use sqlx::prelude::FromRow;
 
 #[derive(Serialize, Deserialize, Debug, Getters)]
 pub struct Tenant
@@ -9,7 +8,7 @@ pub struct Tenant
     first_name: String
 }
 
-#[derive (Serialize, Deserialize, Debug, Getters, FromRow)]
+#[derive (Serialize, Deserialize, Debug, Getters, sqlx::FromRow)]
 pub struct Book
 {
     id: i32,

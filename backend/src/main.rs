@@ -1,4 +1,3 @@
-mod db;
 mod handlers;
 mod routes;
 mod structs;
