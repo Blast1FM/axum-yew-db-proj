@@ -8,7 +8,7 @@ pub struct Tenant
     first_name: String
 }
 
-#[derive (Serialize, Deserialize, Debug, Getters, sqlx::FromRow)]
+#[derive (Serialize, Deserialize, Debug, Getters, sqlx::FromRow, Clone)]
 pub struct Book
 {
     id: i32,
