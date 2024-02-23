@@ -1,6 +1,6 @@
 use axum::{response::IntoResponse, Extension};
 use sqlx::{PgPool, Postgres};
-use crate::structs::{self, Book};
+use crate::structs::{self, Book, BookQueryRequest};
 use axum::Json;
 
 pub async fn hello() -> impl IntoResponse {
@@ -15,14 +15,10 @@ pub async fn tenant_test(Json(body):Json<structs::Tenant>) -> impl IntoResponse{
     format!("Tenant's name is {}", body.first_name())
 }
 
-pub async fn query_book_name(Extension(db) : Extension<PgPool>)-> Json<Book>{
-    let q = "SELECT * from mini1.\"Books\"";
-    let query = sqlx::query_as::<Postgres, Book>(q);
+pub async fn query_book(Extension(db) : Extension<PgPool>, book_request: Json<BookQueryRequest>)-> Json<Vec<Book>>{
+    let q = format!("SELECT * from mini1.\"Books\" WHERE '{}' ~ '{}';", book_request.row_name, book_request.regexp);
+    let query = sqlx::query_as::<Postgres, Book>(&q);
+    // TODO ERROR HANDLING
     let books = query.fetch_all(&db).await.unwrap();
-    Json(books[0].to_owned())
-    //println!("{:?}",books[0]);
-    //Json(books)
-    //TODO figure this shit out, it bork
-    //let query = sqlx::query_as::<_, structs::Book>(q);
-    //let query = sqlx::query(&q).fetch_all(db);
+    Json(books.to_owned())
 }

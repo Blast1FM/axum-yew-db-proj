@@ -18,3 +18,10 @@ pub struct Book
     publisher: String,
     synopsis: String
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct BookQueryRequest
+{
+    pub row_name: String,
+    pub regexp: String,
+}
