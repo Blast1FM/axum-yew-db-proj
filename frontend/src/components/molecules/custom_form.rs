@@ -14,9 +14,12 @@ pub struct Query
 #[function_component(CustomForm)]
 pub fn custom_form() -> Html {
 
-  let rowname_changed = Callback::from(|row_name| 
+  let query_state = use_state(|| Query{row_name:"null".to_owned(),regexp:"null".to_owned()});
+  let cloned_query_state = query_state.clone();
+  let rowname_changed = Callback::from(move |rowname| 
   {
-    gloo::console::log!("Row name changed to ", row_name);
+    //todo fix
+    //query_state.row_name.set(value);
   });
 
   let regexp_changed = Callback::from(|regexp|
