@@ -15,7 +15,7 @@ pub fn create_routes(db_pool: Pool<Postgres>) -> Router
         .route("/", get(handlers::hello))
         .route("/hello", get(handlers::hello_2))
         .route("/tenant", post(handlers::tenant_test))
-        .route("/books", get(handlers::query_book))
+        .route("/api/v1/books", get(handlers::query_book))
         .layer(Extension(db_pool))
 
 }
