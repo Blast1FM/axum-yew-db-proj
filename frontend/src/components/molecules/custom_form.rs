@@ -1,13 +1,12 @@
 use std::ops::Deref;
-
-use crate::components::atoms::custom_button::CustomButton;
 use crate::components::atoms::text_input::TextInput;
 use serde::{Deserialize, Serialize};
 use reqwasm::http::Request;
+use serde_json::to_string_pretty;
 use yew::prelude::*;
 
 #[derive(Default, Clone)]
-struct Query
+pub struct Query
 {
   pub row_name: String,
   pub regexp: String,
@@ -31,10 +30,16 @@ pub struct QueryResponse
   pub books: Vec<Book>,
 }
 
+#[derive(Properties, PartialEq)]
+pub struct Props{
+  pub onsubmit: Callback<Query>,
+}
+
 #[function_component(CustomForm)]
-pub fn custom_form() -> Html {
+pub fn custom_form (/* props: &Props */) -> Html {
 
   let query_state = use_state(|| Query::default());
+
   let cloned_query_state = query_state.clone();
   let rowname_changed = Callback::from(move |rowname| 
   {
@@ -51,36 +56,56 @@ pub fn custom_form() -> Html {
     cloned_query_state.set(data);
   });
 
-  //TODO figure out callbacks and stop beinga monkey
-  let on_click = {
-    let state = query_state.clone();
-    let _ = Callback::from(move |_:()| {
-      let state = state.clone();
-      wasm_bindgen_futures::spawn_local(async move 
-      {
-        let response = Request::get("http://localhost:8069/api/v1/books")
-        .send()
-        .await
-        .unwrap()
-        .json::<QueryResponse>()
-        .await
-        .unwrap();
+  //let form_onsubmit = props.onsubmit.clone();
+  let cloned_query_state = query_state.clone();
+  let onsubmit = Callback::from(move |event:MouseEvent|{
+    event.prevent_default();
+    let state = cloned_query_state.clone();
+    wasm_bindgen_futures::spawn_local(async move{
+      let response = Request::get("[::1]:8069/api/v1/books")
+      .send()
+      .await
+      .unwrap()
+      .json::<QueryResponse>()
+      .await
+      //TODO errors out here
+      .unwrap();
 
-        let mut query = state.deref().clone();
-        query.books = Some(response.books).unwrap();
-        state.set(query);
-      })
-    });
-  };
+      let mut query = state.deref().clone();
+      query.books = Some(response.books).unwrap();
+      state.set(query);
+    })
+  });
+
+  //TODO figure out callbacks and stop beinga monkey
+/*   let state = query_state.clone();
+  let form_onsubmit = Callback::from(move |_:FocusEvent| {
+    let state = state.clone();
+    wasm_bindgen_futures::spawn_local(async move 
+    {
+      let response = Request::get("http://localhost:8069/api/v1/books")
+      .send()
+      .await
+      .unwrap()
+      .json::<QueryResponse>()
+      .await
+      .unwrap();
+
+      let mut query = state.deref().clone();
+      query.books = Some(response.books).unwrap();
+      state.set(query);
+    })
+  }); */
 
     html! {
       <form>
         <TextInput name="Row name" handle_onchange={rowname_changed}/>
         <TextInput name="Regexp" handle_onchange={regexp_changed} />
-        <button {on_click}> {"Submit Query"} </button> 
-        <CustomButton label="Submit" />
+        <button onclick={onsubmit}> {"Submit Query"} </button> 
+        //<CustomButton label="Submit" />
         <p>{"Row name: "} {&query_state.row_name}</p>
         <p>{"Regexp: "} {&query_state.regexp}</p>
+        <pre> {to_string_pretty(&query_state.books).unwrap()} </pre>
       </form>
     }
 }

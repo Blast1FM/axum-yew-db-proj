@@ -10,9 +10,10 @@ gloo = { version = "0.11.0", features = ["console"] }
 log = "0.4.20"
 reqwasm = "0.5.0"
 serde = { version = "1.0.196", features = ["derive"] }
+serde_json = "1.0.114"
 stylist = { version = "0.13.0", features = ["yew"] }
 wasm-bindgen-futures = "0.4.41"
 wasm-logger = "0.2.0"
-web-sys = "0.3.68"
+web-sys = { version = "0.3.68", features = ["Event"] }
 yew = { version = "0.21.0", features = ["csr"] }
 yew-router = "0.18.0"

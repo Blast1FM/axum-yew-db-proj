@@ -13,7 +13,7 @@ pub fn app() -> Html {
     html! {
         <div>
             <MainTitle title="Hi there!!!!!!!" color={Color::Ok} on_load={main_title_load} />
-            <CustomForm />
+            <CustomForm/>
         </div>
     }
 }
