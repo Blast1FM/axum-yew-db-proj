@@ -30,6 +30,13 @@ pub struct QueryResponse
   pub books: Vec<Book>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct ActualQuery
+{
+  pub row_name:String,
+  pub regexp:String,
+}
+
 #[derive(Properties, PartialEq)]
 pub struct Props{
   pub onsubmit: Callback<Query>,
@@ -62,18 +69,26 @@ pub fn custom_form (/* props: &Props */) -> Html {
     event.prevent_default();
     let state = cloned_query_state.clone();
     wasm_bindgen_futures::spawn_local(async move{
-      let response = Request::get("[::1]:8069/api/v1/books")
+      let book_query = ActualQuery {row_name: state.row_name.to_owned(), regexp: state.regexp.to_owned()};
+      let result = Request::get("[::1]:8069/api/v1/books")
+      .body(serde_json::to_string(&book_query).unwrap())
       .send()
       .await
       .unwrap()
       .json::<QueryResponse>()
-      .await
-      //TODO errors out here
-      .unwrap();
+      .await;
 
-      let mut query = state.deref().clone();
-      query.books = Some(response.books).unwrap();
-      state.set(query);
+      match result{
+        Ok(_) => {
+          let mut query = state.deref().clone();
+          query.books = result.unwrap().books;
+          state.set(query);
+        },
+        Err(e) => {println!("{}",e);}
+      }
+      //TODO errors out here
+
+      
     })
   });
 
