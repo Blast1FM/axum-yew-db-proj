@@ -71,6 +71,7 @@ pub fn custom_form (/* props: &Props */) -> Html {
     wasm_bindgen_futures::spawn_local(async move{
       let book_query = ActualQuery {row_name: state.row_name.to_owned(), regexp: state.regexp.to_owned()};
       let result = Request::get("[::1]:8069/api/v1/books")
+      //TODO for some reason it says get or head request can't have a body? What?
       .body(serde_json::to_string(&book_query).unwrap())
       .send()
       .await
@@ -85,33 +86,9 @@ pub fn custom_form (/* props: &Props */) -> Html {
           state.set(query);
         },
         Err(e) => {println!("{}",e);}
-      }
-      //TODO errors out here
-
-      
+      }    
     })
   });
-
-  //TODO figure out callbacks and stop beinga monkey
-/*   let state = query_state.clone();
-  let form_onsubmit = Callback::from(move |_:FocusEvent| {
-    let state = state.clone();
-    wasm_bindgen_futures::spawn_local(async move 
-    {
-      let response = Request::get("http://localhost:8069/api/v1/books")
-      .send()
-      .await
-      .unwrap()
-      .json::<QueryResponse>()
-      .await
-      .unwrap();
-
-      let mut query = state.deref().clone();
-      query.books = Some(response.books).unwrap();
-      state.set(query);
-    })
-  }); */
-
     html! {
       <form>
         <TextInput name="Row name" handle_onchange={rowname_changed}/>
