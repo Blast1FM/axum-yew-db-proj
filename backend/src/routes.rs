@@ -11,13 +11,14 @@ pub fn create_routes(db_pool: Pool<Postgres>) -> Router
 {
     let cors = CorsLayer::new()
     .allow_methods([Method::GET, Method::POST])
-    .allow_origin(Any);
+    .allow_origin(Any)
+    .allow_headers(Any);
+
     Router::new()
         .route("/", get(handlers::hello))
-        .route("/hello", get(handlers::hello_2))
+        .route("/hello", post(handlers::hello_2))
         .route("/tenant", post(handlers::tenant_test))
-        .route("/api/v1/books", get(handlers::query_book))
-        .layer(cors)
+        .route("/api/v1/books", post(handlers::query_book))
         .layer(Extension(db_pool))
-
+        .layer(cors)
 }

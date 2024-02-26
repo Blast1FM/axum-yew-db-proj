@@ -70,7 +70,7 @@ pub fn custom_form (/* props: &Props */) -> Html {
     let state = cloned_query_state.clone();
     wasm_bindgen_futures::spawn_local(async move{
       let book_query = ActualQuery {row_name: state.row_name.to_owned(), regexp: state.regexp.to_owned()};
-      let result = Request::get("[::1]:8069/api/v1/books")
+      let result = Request::post("[::1]:8069/api/v1/books")
       //TODO for some reason it says get or head request can't have a body? What?
       .body(serde_json::to_string(&book_query).unwrap())
       .send()
