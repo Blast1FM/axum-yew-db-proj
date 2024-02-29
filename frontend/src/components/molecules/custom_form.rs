@@ -2,6 +2,7 @@ use std::ops::Deref;
 use crate::components::atoms::text_input::TextInput;
 use serde::{Deserialize, Serialize};
 use reqwasm::http::Request;
+use gloo::console::log;
 use serde_json::to_string_pretty;
 use yew::prelude::*;
 
@@ -68,10 +69,14 @@ pub fn custom_form (/* props: &Props */) -> Html {
   let onsubmit = Callback::from(move |event:MouseEvent|{
     event.prevent_default();
     let state = cloned_query_state.clone();
+    log!("11");
     wasm_bindgen_futures::spawn_local(async move{
       let book_query = ActualQuery {row_name: state.row_name.to_owned(), regexp: state.regexp.to_owned()};
-      let result = Request::post("[::1]:8069/api/v1/books")
+      log!("pre request");
+      let result = Request::new("http://[::1]:8069/api/v1/books")
       //TODO for some reason it says get or head request can't have a body? What?
+      .method(reqwasm::http::Method::POST)
+      .header("content-type", "application/json")      
       .body(serde_json::to_string(&book_query).unwrap())
       .send()
       .await
@@ -79,10 +84,12 @@ pub fn custom_form (/* props: &Props */) -> Html {
       .json::<QueryResponse>()
       .await;
 
+      log!("request sent");
+
       match result{
-        Ok(_) => {
+        Ok(result) => {
           let mut query = state.deref().clone();
-          query.books = result.unwrap().books;
+          query.books = result.books;
           state.set(query);
         },
         Err(e) => {println!("{}",e);}

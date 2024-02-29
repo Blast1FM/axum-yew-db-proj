@@ -3,6 +3,7 @@ use axum::{
 };
 
 use sqlx::{Pool, Postgres};
+use tower::ServiceBuilder;
 use tower_http::cors::{CorsLayer, Any};
 
 use crate::handlers;
@@ -14,11 +15,14 @@ pub fn create_routes(db_pool: Pool<Postgres>) -> Router
     .allow_origin(Any)
     .allow_headers(Any);
 
+    let middleware_layers = ServiceBuilder::new()
+    .layer(Extension(db_pool))
+    .layer(cors);
+
     Router::new()
         .route("/", get(handlers::hello))
         .route("/hello", post(handlers::hello_2))
         .route("/tenant", post(handlers::tenant_test))
         .route("/api/v1/books", post(handlers::query_book))
-        .layer(Extension(db_pool))
-        .layer(cors)
+        .layer(middleware_layers)
 }
