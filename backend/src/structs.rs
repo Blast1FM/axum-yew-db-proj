@@ -25,3 +25,9 @@ pub struct BookQueryRequest
     pub row_name: String,
     pub regexp: String,
 }
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct QueryResponse
+{
+  pub books: Vec<Book>,
+}

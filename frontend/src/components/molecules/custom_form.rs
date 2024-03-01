@@ -72,7 +72,6 @@ pub fn custom_form (/* props: &Props */) -> Html {
     wasm_bindgen_futures::spawn_local(async move{
       let book_query = ActualQuery {row_name: state.row_name.to_owned(), regexp: state.regexp.to_owned()};
       let result = Request::new("http://[::1]:8069/api/v1/books")
-      //TODO for some reason it says get or head request can't have a body? What?
       .method(reqwasm::http::Method::POST)
       .header("content-type", "application/json")      
       .body(serde_json::to_string(&book_query).unwrap())
