@@ -14,7 +14,7 @@ pub struct Query
   pub books: Vec<Book>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Default)]
 pub struct Book
 {
     pub id: i32,
@@ -66,13 +66,11 @@ pub fn custom_form (/* props: &Props */) -> Html {
 
   //let form_onsubmit = props.onsubmit.clone();
   let cloned_query_state = query_state.clone();
-  let onsubmit = Callback::from(move |event:MouseEvent|{
+  let onsubmit = Callback::from(move |event:SubmitEvent|{
     event.prevent_default();
     let state = cloned_query_state.clone();
-    log!("11");
     wasm_bindgen_futures::spawn_local(async move{
       let book_query = ActualQuery {row_name: state.row_name.to_owned(), regexp: state.regexp.to_owned()};
-      log!("pre request");
       let result = Request::new("http://[::1]:8069/api/v1/books")
       //TODO for some reason it says get or head request can't have a body? What?
       .method(reqwasm::http::Method::POST)
@@ -84,24 +82,23 @@ pub fn custom_form (/* props: &Props */) -> Html {
       .json::<QueryResponse>()
       .await;
 
-      log!("request sent");
-
       match result{
         Ok(result) => {
           let mut query = state.deref().clone();
           query.books = result.books;
           state.set(query);
         },
-        Err(e) => {println!("{}",e);}
+        Err(e) => {
+          log!(format!("{e}"));
+        ;}
       }    
     })
   });
     html! {
-      <form>
+      <form {onsubmit}>
         <TextInput name="Row name" handle_onchange={rowname_changed}/>
         <TextInput name="Regexp" handle_onchange={regexp_changed} />
-        <button onclick={onsubmit}> {"Submit Query"} </button> 
-        //<CustomButton label="Submit" />
+        <button> {"Submit Query"} </button> 
         <p>{"Row name: "} {&query_state.row_name}</p>
         <p>{"Regexp: "} {&query_state.regexp}</p>
         <pre> {to_string_pretty(&query_state.books).unwrap()} </pre>
